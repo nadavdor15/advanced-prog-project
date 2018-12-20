@@ -16,4 +16,7 @@ public:
 	static vector<string> lexer(string line);
 	static bool isScriptFile(string& line);
 	void parser(vector<string> line, int index);
+
+private:
+	void setCommandsMap();
 };

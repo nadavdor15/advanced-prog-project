@@ -3,10 +3,13 @@
 #include <fstream>
 #include <iostream>
 #include "Interpreter.h"
+#include "OpenServerCommand.h"
+#include "ConnectCommand.h"
+#include "DefineVarCommand.h"
 
 #define DELIM "\t "
 
-using namespace std
+using namespace std;
 
 static bool Interpreter::isScriptFile(string& line) {
 	bool flag;
@@ -40,4 +43,10 @@ void Interpreter::parser(vector<string> line, int index) {
 	for (int i = index; i < line.size(); i++) {
 		
 	}
+}
+
+void Interpreter::setCommandsMap() {
+	_commandsMap["openDataServer"] = OpenServerCommand();
+	_commandsMap["connect"] = ConnectCommand();
+	_commandsMap["var"] = DefineVarCommand(_symbolTable);
 }
