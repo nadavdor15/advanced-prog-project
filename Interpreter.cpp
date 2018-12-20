@@ -6,7 +6,7 @@
 
 #define DELIM "\t "
 
-using namespace std;
+using namespace std
 
 static bool Interpreter::isScriptFile(string& line) {
 	bool flag;
