@@ -8,9 +8,6 @@
 
 using namespace std;
 
-Interpreter::Interpreter() {
-}
-
 static bool Interpreter::isScriptFile(string& line) {
 	bool flag;
 	vector<string> words = lexer(line);
