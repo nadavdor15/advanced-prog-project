@@ -13,13 +13,15 @@ class ConnectCommand : public Command {
 	int _client_fd;
 
 public:
-	ConnectCommand(int ip_address, int port) {
-		_argumentsAmount = 0;
-		_ip_address = ip_adress;
-		_port = port;
+	ConnectCommand() {
+		_argumentsAmount = 2;
 	}
 
-	virtual void doCommand(vector<string>& arguments) {
+	virtual void doCommand(vector<string>& arguments, int index) {
+		if (arguments.size() < _argumentsAmount)
+			throw "Arguments amount is lower than 2";
+		_ip_address = arguments[++index];
+		_port = arguments[++index];
 		thread t1(startClient);
 	}
 

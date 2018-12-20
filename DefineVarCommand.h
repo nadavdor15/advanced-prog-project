@@ -12,8 +12,9 @@ public:
 		_argumentsAmount = 1;
 	}
 
-	virtual void doCommand(vector<string>& arguments) {
+	virtual void doCommand(vector<string>& arguments, int index) {
 		if (arguments.size() < _argumentsAmount)
 			throw "Amount of arguments is lower than 1";
+		_symbolTable->operator[arguments[++index]] = 0;
 	}
 };

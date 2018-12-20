@@ -4,6 +4,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <thread>
+#define MAX_PORT_SIZE 65536
+#define MIN_PORT_SIZE 1
+#define MIN_SPEED 1
 
 using namespace std;
 
@@ -16,13 +19,19 @@ class DataReaderServer : public Command {
 public:
 	DataReaderServer() {}
 
-	DataReaderServer(int port, int speed) {
-		_argumentsAmount = 0;
-		_port = port;
-		_speed = speed;
+	DataReaderServer() {
+		_argumentsAmount = 2;
 	}
 
-	virtual void doCommand(vector<string>& arguments) {
+	virtual void doCommand(vector<string>& arguments, int index) {
+		if (arguments.size() < 2)
+			throw "Amount of arguments is lower than 2";
+		if (port < MIN_PORT_SIZE || port > MAX_PORT_SIZE)
+			throw "First argument must be in range of 1-65536";
+		if (speed < MIN_SPEED)
+			throw "Second argument must be positive";
+		_port = stoi(arguments[++index]);
+		_speed = stoi(arguments[++index]);
 		thread t1(startServer);
 	}
 

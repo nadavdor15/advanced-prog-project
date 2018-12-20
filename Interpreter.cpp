@@ -41,12 +41,12 @@ static vector<string> Interpreter::lexer(string line) {
 
 void Interpreter::parser(vector<string> line, int index) {
 	for (int i = index; i < line.size(); i++) {
-		
+		Command c = 
 	}
 }
 
 void Interpreter::setCommandsMap() {
 	_commandsMap["openDataServer"] = OpenServerCommand();
 	_commandsMap["connect"] = ConnectCommand();
-	_commandsMap["var"] = DefineVarCommand(_symbolTable);
+	_commandsMap["var"] = DefineVarCommand();
 }

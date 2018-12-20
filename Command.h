@@ -11,7 +11,7 @@ protected:
 	int _argumentsAmount;
 
 public:
-	virtual void doCommand(vector<string>& arguments) = 0;
+	virtual void doCommand(vector<string>& arguments, int index) = 0;
 };
 
 #endif
