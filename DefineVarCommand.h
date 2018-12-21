@@ -15,6 +15,8 @@ public:
 	virtual void doCommand(vector<string>& arguments, int index) {
 		if (arguments.size() < _argumentsAmount)
 			throw "Amount of arguments is lower than 1";
-		_symbolTable->operator[arguments[++index]] = 0;
+		if (_symbolTable->find(arguments[++index]) != _symbolTable->end())
+			throw "The variable " + arguments[index] + " cannot be redefined";
+		_symbolTable->operator[](arguments[index]) = 0;
 	}
 };

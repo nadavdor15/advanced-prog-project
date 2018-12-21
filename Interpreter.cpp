@@ -1,5 +1,3 @@
-#include <vector>
-#include <string>
 #include <fstream>
 #include <iostream>
 #include "Interpreter.h"
@@ -11,7 +9,12 @@
 
 using namespace std;
 
-static bool Interpreter::isScriptFile(string& line) {
+Interpreter::Interpreter() {
+	_symbolTable = new map<string, double>();
+	setCommandsMap();
+}
+
+bool Interpreter::isScriptFile(string& line) {
 	bool flag;
 	vector<string> words = lexer(line);
 	if (words.size() != 2)
@@ -25,7 +28,7 @@ static bool Interpreter::isScriptFile(string& line) {
 	return flag;
 }
 
-static vector<string> Interpreter::lexer(string line) {
+vector<string> Interpreter::lexer(string line) {
 	vector<string> commands;
 	int firstIndex;
 	while ((firstIndex = line.find_first_of(DELIM)) < line.length()) {
@@ -41,12 +44,25 @@ static vector<string> Interpreter::lexer(string line) {
 
 void Interpreter::parser(vector<string> line, int index) {
 	for (int i = index; i < line.size(); i++) {
-		Command c = 
+		Command* c = _commandsMap[line[i]];
+		if (c == nullptr)
+			continue;
+		try {
+			c->doCommand(line, i);
+		} catch (string e) {
+			cout << e << endl;
+		}
 	}
 }
 
 void Interpreter::setCommandsMap() {
-	_commandsMap["openDataServer"] = OpenServerCommand();
-	_commandsMap["connect"] = ConnectCommand();
-	_commandsMap["var"] = DefineVarCommand();
+	_commandsMap["openDataServer"] = new OpenServerCommand();
+	_commandsMap["connect"] = new ConnectCommand(_symbolTable);
+	_commandsMap["var"] = new DefineVarCommand(_symbolTable);
+}
+
+Interpreter::~Interpreter() {
+	for (auto it = _commandsMap.begin(); it != _commandsMap.end(); it++)
+		delete it->second;
+	delete _symbolTable;
 }

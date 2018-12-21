@@ -1,6 +1,6 @@
 #include "Command.h"
+#include <iostream>
 #include "DataReaderServer.h"
-
 
 using namespace std;
 
