@@ -19,6 +19,7 @@ class ConnectCommand : public Command {
 	map<string, double>* _symbolTable;
 
 	void startClient(int port, const char* dst_addr) {
+		close(_client_fd);
 		struct sockaddr_in address;
     	socklen_t addrlen = sizeof(address);
 
@@ -37,6 +38,7 @@ public:
 	ConnectCommand(map<string, double>* symbolTable) {
 		_symbolTable = symbolTable;
 		_argumentsAmount = 2;
+		_client_fd = -1;
 	}
 
 	virtual void doCommand(vector<string>& arguments, int index) {
@@ -47,6 +49,10 @@ public:
 		if (port < MIN_PORT_SIZE || port > MAX_PORT_SIZE)
 			throw "First argument must be in range of 1-65536";
 		startClient(port, ip_address);
+	}
+
+	void sendMessage() {
+		
 	}
 
 	~ConnectCommand() {
