@@ -16,9 +16,11 @@ using namespace std;
 
 class ConnectCommand : public Command {
 	int _client_fd;
+	int _port;
 	map<string, double>* _symbolTable;
 
-	void startClient(int port, const char* dst_addr) {
+	void startClient(const char* dst_addr) {
+		close(_client_fd);
 		struct sockaddr_in address;
     	socklen_t addrlen = sizeof(address);
 
@@ -27,7 +29,7 @@ class ConnectCommand : public Command {
 
 		address.sin_family = AF_INET;
 	    inet_aton(dst_addr, &address.sin_addr);
-	    address.sin_port = htons(port);
+	    address.sin_port = htons(_port);
 
 	    connect(_client_fd, (struct sockaddr*) &address, sizeof(address));
 	    cout << "Client socket is now connected to: " << address.sin_addr.s_addr << ", " << address.sin_port << endl;
@@ -37,16 +39,21 @@ public:
 	ConnectCommand(map<string, double>* symbolTable) {
 		_symbolTable = symbolTable;
 		_argumentsAmount = 2;
+		_client_fd = -1;
 	}
 
 	virtual void doCommand(vector<string>& arguments, int index) {
-		if (arguments.size() < _argumentsAmount)
-			throw "Arguments amount is lower than 2";
+		if ((arguments.size() - 1) < _argumentsAmount)
+			throw "Arguments amount is lower than " + to_string(_argumentsAmount);
 		const char* ip_address = arguments[++index].c_str();
-		int port = stoi(arguments[++index]);
-		if (port < MIN_PORT_SIZE || port > MAX_PORT_SIZE)
+		_port = stoi(arguments[++index]);
+		if (_port < MIN_PORT_SIZE || _port > MAX_PORT_SIZE)
 			throw "First argument must be in range of 1-65536";
-		startClient(port, ip_address);
+		startClient(ip_address);
+	}
+
+	void sendMessage() {
+
 	}
 
 	~ConnectCommand() {

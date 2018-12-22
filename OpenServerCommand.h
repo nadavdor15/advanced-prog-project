@@ -14,8 +14,8 @@ public:
 	}
 
 	virtual void doCommand(vector<string>& arguments, int index) {
-		if (arguments.size() < _argumentsAmount)
-			throw "Amount of arguments is lower than 2";
+		if ((arguments.size() - 1) < _argumentsAmount)
+			throw "Amount of arguments is lower than " + to_string(_argumentsAmount);
 		_dataReaderServer.doCommand(arguments, index);
 	}
 };

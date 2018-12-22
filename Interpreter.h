@@ -10,7 +10,7 @@ using namespace std;
 class Interpreter {
 private:
 	map<string, Command*> _commandsMap;
-	map<string, double>* _symbolTable;
+	map<string, double> _symbolTable;
 
 public:
 	Interpreter();
@@ -21,4 +21,5 @@ public:
 
 private:
 	void setCommandsMap();
+	static void addSpaces(strin& line);
 };

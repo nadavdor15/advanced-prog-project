@@ -7,40 +7,36 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <thread>
+#include <chrono>
 #define MAX_PORT_SIZE 65536
 #define MIN_PORT_SIZE 1
 #define MIN_SPEED 1
+#define SECOND_IN_MILLI
 
 using namespace std;
 
 class DataReaderServer : public Command {
-	int _speed;
-	int _server_fd;
-
+	map<string, vector<string>>* bindMap;
 public:
 	DataReaderServer() {
 		_argumentsAmount = 2;
 	}
 
 	virtual void doCommand(vector<string>& arguments, int index) {
-		if (arguments.size() < 2)
-			throw "Amount of arguments is lower than 2";
+		if ((arguments.size() - 1) < _argumentsAmount)
+			throw "Amount of arguments is lower than " + to_string(_argumentsAmount);
 		int port = stoi(arguments[++index]);
-		_speed = stoi(arguments[++index]);
+		int speed = stoi(arguments[++index]);
 		if (port < MIN_PORT_SIZE || port > MAX_PORT_SIZE)
 			throw "First argument must be in range of 1-65536";
-		if (_speed < MIN_SPEED)
+		if (speed < MIN_SPEED)
 			throw "Second argument must be positive";
-		thread t1(startServer, port);
+		thread t1(startServer, port, speed);
 		t1.detach();
 	}
 
-	~DataReaderServer() {
-		// close(_server_fd);
-	}
-
 private:
-	static void startServer(int port) {
+	static void startServer(int port, int speed) {
 		int server_fd;
 		if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw "Could not open server socket";
@@ -51,9 +47,26 @@ private:
 		address.sin_addr.s_addr = INADDR_ANY;
 		address.sin_port = htons(port);
 
-		bind(server_fd, (struct sockaddr *)&address, sizeof(address));
-		listen(server_fd, 5);
-		int _new_socket = accept(server_fd, (struct sockaddr*) &address, &addrlen);
+		if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+			throw "Could not bind";
+		if (listen(server_fd, 5) < 0)
+			throw "Could not listen, please be more quiet";
+		int new_socket = accept(server_fd, (struct sockaddr*) &address, &addrlen);
+		if (new_socket < 0)
+			throw "Could not accept a client";
 		cout << "Server has now accepted this client: " << address.sin_addr.s_addr << ", " << address.sin_port << endl;
+		while (true) {
+			auto start = chrono::steady_clock::now();
+			char buffer[1024];
+			for (int i = 0; i < speed; i++) {
+				read(new_socket, buffer, 1024);
+				
+				cout << "Now: " << buffer << endl;
+			}
+			auto end = chrono::steady_clock::now();
+			int time_left = SECOND_IN_MILLI - chrono::duration_cast<chrono::milliseconds>(end - start).count();
+			if (time_left > 0)
+				this_thread::sleep_for(chrono::milliseconds(time_left));
+		}
 	}
 };
