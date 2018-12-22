@@ -4,7 +4,8 @@
 #include "OpenServerCommand.h"
 #include "ConnectCommand.h"
 #include "DefineVarCommand.h"
-#define spaceAble "+-*/==(){}[]"
+#include "AssignCommand.h"
+#define SHOULD_GET_SPACES "+-*/==(){}[]"
 #define DELIM "\t "
 
 using namespace std;
@@ -30,9 +31,12 @@ vector<string> Interpreter::lexer(string line) {
 
 void Interpreter::parser(vector<string> line, int index) {
 	for (int i = index; i < line.size(); i++) {
-		Command* c = _commandsMap[line[i]];
-		if (c == nullptr)
+		Command* c;
+		try {
+			c = _commandsMap.at(line[i]);
+		} catch (...) {
 			continue;
+		}
 		try {
 			c->doCommand(line, i);
 		} catch (string e) {
@@ -49,6 +53,7 @@ void Interpreter::setCommandsMap() {
 	_commandsMap["openDataServer"] = new OpenServerCommand();
 	_commandsMap["connect"] = new ConnectCommand(&_symbolTable);
 	_commandsMap["var"] = new DefineVarCommand(&_symbolTable, &_commandsMap);
+	_commandsMap["="] = new AssignCommand(&_symbolTable);
 }
 
 bool Interpreter::isScriptFile(string& line) {
@@ -66,7 +71,7 @@ bool Interpreter::isScriptFile(string& line) {
 }
 
 void Interpreter::addSpaces(string& line) {
-  string needSpaces = string(spaceAble);
+  string needSpaces = string(SHOULD_GET_SPACES);
 	for (int i = 0; (i + 1) < line.length(); i++) {
 		if (line[i] == '\"')
 			while (line[++i] != '\"') {}

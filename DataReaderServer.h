@@ -8,6 +8,7 @@
 #include <string.h>
 #include <thread>
 #include <chrono>
+#include <map>
 #define MAX_PORT_SIZE 65536
 #define MIN_PORT_SIZE 1
 #define MIN_SPEED 1
@@ -60,8 +61,6 @@ private:
 			char buffer[1024];
 			for (int i = 0; i < speed; i++) {
 				read(new_socket, buffer, 1024);
-				
-				cout << "Now: " << buffer << endl;
 			}
 			auto end = chrono::steady_clock::now();
 			int time_left = SECOND_IN_MILLI - chrono::duration_cast<chrono::milliseconds>(end - start).count();

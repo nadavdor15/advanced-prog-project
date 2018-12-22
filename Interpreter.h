@@ -21,5 +21,5 @@ public:
 
 private:
 	void setCommandsMap();
-	static void addSpaces(strin& line);
+	static void addSpaces(string& line);
 };

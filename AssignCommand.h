@@ -1,6 +1,7 @@
 #include "Command.h"
 #include <iostream>
 #include <map>
+#define OPERATORS "-+/*()"
 
 using namespace std;
 
@@ -16,6 +17,27 @@ public:
 	virtual void doCommand(vector<string>& arguments, int index) {
 		if ((arguments.size() - 1) < _argumentsAmount)
 			throw "Arguments amount is lower than " + to_string(_argumentsAmount);
-		
+		if (_symbolTable->find(arguments[index - 1]) == _symbolTable->end())
+			throw "The variable " + arguments[index - 1] + " is not defined";
+		if ((arguments.size() - index - 1) >= 2) {
+			if (arguments[index + 1].compare("bind")) {
+				return;
+			}
+		}
+		string operators = string(OPERATORS);
+		for (int i = index + 1; i < arguments.size(); i++) {
+			try {
+				stoi(arguments[i]);
+			} catch (...) {
+				if (operators.find(arguments[i]) != string::npos)
+					continue;
+				if (_symbolTable->find(arguments[i]) == _symbolTable->end())
+					throw "The variable " + arguments[i] + " is not defined";
+				arguments[i] = to_string(_symbolTable->operator[](arguments[i]));
+			}
+		}
+		for (string s : arguments)
+			cout << s << " ";
+		cout << endl;
 	}
 };
