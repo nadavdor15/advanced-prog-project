@@ -1,6 +1,9 @@
 #define _BAD_SOURCE
 #include "Command.h"
+#include "Interpreter.h"
+#include <algorithm>
 #include <iostream>
+#include <ctype.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -17,9 +20,17 @@
 using namespace std;
 
 class DataReaderServer : public Command {
-	map<string, vector<string>>* bindMap;
+	map<string, vector<string>>* _bindTable;
+	map<string,double>* _symbolTable;
 public:
 	DataReaderServer() {
+
+	}
+
+	DataReaderServer(map<string,double>* symbolTable,
+					 map<string, vector<string>>* bindTable) {
+		_symbolTable = symbolTable;
+		_bindTable = bindTable;
 		_argumentsAmount = 2;
 	}
 
@@ -32,12 +43,15 @@ public:
 			throw "First argument must be in range of 1-65536";
 		if (speed < MIN_SPEED)
 			throw "Second argument must be positive";
-		thread t1(startServer, port, speed);
+		thread t1(startServer, port, speed, _symbolTable, _bindTable);
 		t1.detach();
 	}
 
 private:
-	static void startServer(int port, int speed) {
+	static void startServer(int port, 
+							int speed,
+							map<string,double>* symbolTable, map<string,
+							vector<string>>* bindTable) {
 		int server_fd;
 		if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 			throw "Could not open server socket";
@@ -59,13 +73,63 @@ private:
 		while (true) {
 			auto start = chrono::steady_clock::now();
 			char buffer[1024];
+			vector<string> names = getNames();
 			for (int i = 0; i < speed; i++) {
 				read(new_socket, buffer, 1024);
+				vector<string> valuesInString = Interpreter::lexer(string(buffer), ",");
+				vector<double> values;
+				for (string value : valuesInString)
+					try {
+						value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
+						values.push_back(stod(value));
+					} catch (...) {
+						cout << "the value is: \"" << value << "\"" << endl;
+					}
+				// cout << "D" << endl;
+				updateVars(values, symbolTable, bindTable, names);
 			}
 			auto end = chrono::steady_clock::now();
 			int time_left = SECOND_IN_MILLI - chrono::duration_cast<chrono::milliseconds>(end - start).count();
 			if (time_left > 0)
 				this_thread::sleep_for(chrono::milliseconds(time_left));
 		}
+	}
+
+	static void updateVars(vector<double> values,
+						   map<string,double>* symbolTable,
+						   map<string, vector<string>>* bindTable,
+						   vector<string>& names) {
+		for (int i = 0; i < names.size(); i++) {
+			vector<string> binds = bindTable->operator[](names[i]);
+			for (string bind : binds)
+				symbolTable->at(bind) = values[i];
+		}
+	}
+
+	static vector<string> getNames() {
+		vector<string> names = {"/instrumentation/airspeed-indicator/indicated-speed-kt",
+								"/instrumentation/altimeter/indicated-altitude-ft",
+								"/instrumentation/altimeter/pressure-alt-ft",
+								"/instrumentation/attitude-indicator/indicated-pitch-deg",
+								"/instrumentation/attitude-indicator/indicated-roll-deg",
+								"/instrumentation/attitude-indicator/internal-pitch-deg",
+								"/instrumentation/attitude-indicator/internal-roll-deg",
+								"/instrumentation/encoder/indicated-altitude-ft",
+								"/instrumentation/encoder/pressure-alt-ft",
+								"/instrumentation/gps/indicated-altitude-ft",
+								"/instrumentation/gps/indicated-ground-speed-kt",
+								"/instrumentation/gps/indicated-vertical-speed",
+								"/instrumentation/heading-indicator/indicated-heading-deg",
+								"/instrumentation/magnetic-compass/indicated-heading-deg",
+								"/instrumentation/slip-skid-ball/indicated-slip-skid",
+								"/instrumentation/turn-indicator/indicated-turn-rate",
+								"/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
+								"/controls/flight/aileron",
+								"/controls/flight/elevator",
+								"/controls/flight/rudder",
+								"/controls/flight/flaps",
+								"/controls/engines/engine/throttle",
+								"/engines/engine/rpm"};
+		return names;
 	}
 };

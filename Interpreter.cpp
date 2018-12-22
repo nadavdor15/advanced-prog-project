@@ -5,7 +5,8 @@
 #include "ConnectCommand.h"
 #include "DefineVarCommand.h"
 #include "AssignCommand.h"
-#define SHOULD_GET_SPACES "+-*/==(){}[]"
+#include "PrintCommand.h"
+#define SHOULD_GET_SPACES ",+,-,*,/,<,<=,>,>=,!=,==,=,(,),{,},[,],(),[],{},"
 #define DELIM "\t "
 
 using namespace std;
@@ -14,11 +15,11 @@ Interpreter::Interpreter() {
 	setCommandsMap();
 }
 
-vector<string> Interpreter::lexer(string line) {
+vector<string> Interpreter::lexer(string line, const char* delim) {
 	addSpaces(line);
 	vector<string> commands;
 	int firstIndex;
-	while ((firstIndex = line.find_first_of(DELIM)) < line.length()) {
+	while ((firstIndex = line.find_first_of(delim)) < line.length()) {
 			string word = line.substr(0, firstIndex);
 			if (word.length())
 				commands.push_back(word);
@@ -35,6 +36,7 @@ void Interpreter::parser(vector<string> line, int index) {
 		try {
 			c = _commandsMap.at(line[i]);
 		} catch (...) {
+			cout "Could not resolve '" + line[i] + "'";
 			continue;
 		}
 		try {
@@ -50,15 +52,16 @@ void Interpreter::parser(vector<string> line, int index) {
 }
 
 void Interpreter::setCommandsMap() {
-	_commandsMap["openDataServer"] = new OpenServerCommand();
+	_commandsMap["openDataServer"] = new OpenServerCommand(&_symbolTable, &_bindTable);
 	_commandsMap["connect"] = new ConnectCommand(&_symbolTable);
 	_commandsMap["var"] = new DefineVarCommand(&_symbolTable, &_commandsMap);
-	_commandsMap["="] = new AssignCommand(&_symbolTable);
+	_commandsMap["="] = new AssignCommand(&_symbolTable, &_bindTable);
+	_commandsMap["print"] = new PrintCommand(&_symbolTable);
 }
 
 bool Interpreter::isScriptFile(string& line) {
 	bool flag;
-	vector<string> words = lexer(line);
+	vector<string> words = lexer(line, DELIM);
 	if (words.size() != 2)
 		return false;
 	if (words[0].compare("run") != 0)
@@ -75,7 +78,7 @@ void Interpreter::addSpaces(string& line) {
 	for (int i = 0; (i + 1) < line.length(); i++) {
 		if (line[i] == '\"')
 			while (line[++i] != '\"') {}
-		if (needSpaces.find(line[i]) != string::npos) {
+		if (needSpaces.find(string(",") + line[i] + string(",")) != string::npos) {
         line.insert(i + 1, " ");
         line.insert(i, " ");
         i+=2;

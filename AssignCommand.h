@@ -7,10 +7,12 @@ using namespace std;
 
 class AssignCommand : public Command {
 	map<string, double>* _symbolTable;
+	map<string, vector<string>>* _bindTable;
 
 public:
-	AssignCommand(map<string, double>* symbolTable) {
+	AssignCommand(map<string, double>* symbolTable, map<string, vector<string>>* bindTable) {
 		_symbolTable = symbolTable;
+		_bindTable = bindTable;
 		_argumentsAmount = 2;
 	}
 
@@ -20,7 +22,13 @@ public:
 		if (_symbolTable->find(arguments[index - 1]) == _symbolTable->end())
 			throw "The variable " + arguments[index - 1] + " is not defined";
 		if ((arguments.size() - index - 1) >= 2) {
-			if (arguments[index + 1].compare("bind")) {
+			if (arguments[index + 1].compare(string("bind")) == 0) {
+				string path = arguments[index + 2];
+				int path_length = path.length();
+				if (path[0] != '\"' || path[path_length - 1] != '\"')
+					throw "Path should be in quatation marks";
+				path = path.substr(1, path_length - 2);
+				_bindTable->operator[](path).push_back(arguments[index - 1]);
 				return;
 			}
 		}
@@ -36,8 +44,5 @@ public:
 				arguments[i] = to_string(_symbolTable->operator[](arguments[i]));
 			}
 		}
-		for (string s : arguments)
-			cout << s << " ";
-		cout << endl;
 	}
 };

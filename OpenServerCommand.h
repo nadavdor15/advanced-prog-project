@@ -1,5 +1,6 @@
 #include "Command.h"
 #include <iostream>
+#include <map>
 #include "DataReaderServer.h"
 
 using namespace std;
@@ -8,8 +9,8 @@ class OpenServerCommand : public Command {
 	DataReaderServer _dataReaderServer;
 
 public:
-	OpenServerCommand() {
-		_dataReaderServer = DataReaderServer();
+	OpenServerCommand(map<string,double>* symbolTable, map<string, vector<string>>* bindTable) {
+		_dataReaderServer = DataReaderServer(symbolTable, bindTable);
 		_argumentsAmount = 2;
 	}
 
