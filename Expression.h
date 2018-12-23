@@ -1,9 +1,14 @@
-#ifndef APP_EXPRESSION_H
-#define APP_EXPRESSION_H
+#ifndef EXPRESSION_H
+#define EXPRESSION_H
+
+#include <vector>
+#include <string>
+
+using namespace std;
 
 class Expression {
 public:
-    virtual double calculate() = 0;
+	virtual double calculate(vector<string>& arguments, int index) = 0;
 };
 
-#endif //APP_EXPRESSION_H
+#endif 
