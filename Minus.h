@@ -11,4 +11,5 @@ public:
     double calculate(vector<string>& arguments, int index) {
         return _right_expression.calculate(arguments, index) -
                _left_expression.calculate(arguments, index);
+    }
 };
