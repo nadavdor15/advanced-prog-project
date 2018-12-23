@@ -1,6 +1,7 @@
 #define _BAD_SOURCE
 #include "Command.h"
 #include "Interpreter.h"
+#include "StringHelper.h"
 #include <algorithm>
 #include <iostream>
 #include <ctype.h>
@@ -34,7 +35,7 @@ public:
 		_argumentsAmount = 2;
 	}
 
-	virtual void doCommand(vector<string>& arguments, int index) {
+	virtual int doCommand(vector<string>& arguments, int index) {
 		if ((arguments.size() - 1) < _argumentsAmount)
 			throw "Amount of arguments is lower than " + to_string(_argumentsAmount);
 		int port = stoi(arguments[++index]);
@@ -45,6 +46,7 @@ public:
 			throw "Second argument must be positive";
 		thread t1(startServer, port, speed, _symbolTable, _bindTable);
 		t1.detach();
+		return index;
 	}
 
 private:
@@ -76,16 +78,14 @@ private:
 			vector<string> names = getNames();
 			for (int i = 0; i < speed; i++) {
 				read(new_socket, buffer, 1024);
-				vector<string> valuesInString = Interpreter::lexer(string(buffer), ",");
+				vector<string> valuesInString = StringHelper::split(string(buffer), ",");
 				vector<double> values;
-				for (string value : valuesInString)
-					try {
-						value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
-						values.push_back(stod(value));
-					} catch (...) {
-						cout << "the value is: \"" << value << "\"" << endl;
-					}
-				// cout << "D" << endl;
+				for (string value : valuesInString) {
+					value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
+					cout  << "in string: '" << value << "'" << endl;
+					cout  << "in double: '" << stod(value) << "'" << endl;
+					values.push_back(stod(value));
+				}
 				updateVars(values, symbolTable, bindTable, names);
 			}
 			auto end = chrono::steady_clock::now();

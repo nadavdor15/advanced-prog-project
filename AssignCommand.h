@@ -1,4 +1,5 @@
 #include "Command.h"
+#include "StringHelper.h"
 #include <iostream>
 #include <map>
 #define OPERATORS "-+/*()"
@@ -16,11 +17,14 @@ public:
 		_argumentsAmount = 2;
 	}
 
-	virtual void doCommand(vector<string>& arguments, int index) {
+	virtual int doCommand(vector<string>& arguments, int index) {
 		if ((arguments.size() - 1) < _argumentsAmount)
 			throw "Arguments amount is lower than " + to_string(_argumentsAmount);
 		if (_symbolTable->find(arguments[index - 1]) == _symbolTable->end())
 			throw "The variable " + arguments[index - 1] + " is not defined";
+		string argument = StringHelper::getArgument(arguments);
+		StringHelper::addSpaces(argument);
+		arguments = StringHelper::split(argument, " ");
 		if ((arguments.size() - index - 1) >= 2) {
 			if (arguments[index + 1].compare(string("bind")) == 0) {
 				string path = arguments[index + 2];
@@ -29,7 +33,7 @@ public:
 					throw "Path should be in quatation marks";
 				path = path.substr(1, path_length - 2);
 				_bindTable->operator[](path).push_back(arguments[index - 1]);
-				return;
+				return index + 3;
 			}
 		}
 		string operators = string(OPERATORS);
@@ -44,5 +48,9 @@ public:
 				arguments[i] = to_string(_symbolTable->operator[](arguments[i]));
 			}
 		}
+		for (string s : arguments)
+			cout << "'" << s << "' ";
+		cout << endl;
+		return arguments.size();
 	}
 };

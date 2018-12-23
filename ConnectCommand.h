@@ -42,7 +42,7 @@ public:
 		_client_fd = -1;
 	}
 
-	virtual void doCommand(vector<string>& arguments, int index) {
+	virtual int doCommand(vector<string>& arguments, int index) {
 		if ((arguments.size() - 1) < _argumentsAmount)
 			throw "Arguments amount is lower than " + to_string(_argumentsAmount);
 		const char* ip_address = arguments[++index].c_str();
@@ -50,6 +50,7 @@ public:
 		if (_port < MIN_PORT_SIZE || _port > MAX_PORT_SIZE)
 			throw "First argument must be in range of 1-65536";
 		startClient(ip_address);
+		return index;
 	}
 
 	void sendMessage() {

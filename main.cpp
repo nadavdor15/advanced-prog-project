@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		ifstream script(argv[2]);
 		while (getline(script, inputStr)) {
-			vector<string> line = Interpreter::lexer(inputStr, DELIM);
+			vector<string> line = Interpreter::lexer(inputStr);
 			interpreter.parser(line, 0);
 		}
 	}
@@ -22,12 +22,12 @@ int main(int argc, char* argv[]) {
 		if (Interpreter::isScriptFile(inputStr)) {
 			ifstream script(inputStr);
 			while (getline(script, inputStr)) {
-				vector<string> line = Interpreter::lexer(inputStr, DELIM);
+				vector<string> line = Interpreter::lexer(inputStr);
 				interpreter.parser(line, 0);
 			}
 		}
 		else {
-			vector<string> line = Interpreter::lexer(inputStr, DELIM);
+			vector<string> line = Interpreter::lexer(inputStr);
 			interpreter.parser(line, 0);
 		}
 	}
