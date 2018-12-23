@@ -1,5 +1,7 @@
 #include "Expression.h"
 
+using namespace std;
+
 class BinaryExpression : public Expression {
 protected:
     Expression& _left_expression;
