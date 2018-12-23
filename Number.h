@@ -1,5 +1,7 @@
 #include "Expression.h"
 
+using namespace std;
+
 class Number : public Expression {
 private:
     double _value;
