@@ -1,15 +1,10 @@
-#ifndef APP_MULTIPLICATION_H
-#define APP_MULTIPLICATION_H
-
-
 #include "BinaryExpression.h"
-
 
 class Mul : public BinaryExpression {
 public:
-    Mul(Expression * a, Expression * b);
+    Mul(Expression& right_expression,
+        Expression& left_expression):
+        BinaryExpression(right_expression, 
+                         left_expression) {}
     double calculate();
 };
-
-
-#endif //APP_MULTIPLICATION_H
