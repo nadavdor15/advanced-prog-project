@@ -1,13 +1,13 @@
-#ifndef APP_BINARYEXPRESSION_H
-#define APP_BINARYEXPRESSION_H
-
 #include "Expression.h"
 
 class BinaryExpression : public Expression {
 protected:
-    Expression *_right;
-    Expression * _left;
-    BinaryExpression(Expression * a, Expression * b);
+    Expression& _left_expression;
+    Expression& _right_expression;
+public:
+    BinaryExpression(Expression& left_expression,
+                     Expression& right_expression):
+                     _left_expression(left_expression),
+                     _right_expression(right_expression) {}
+    virtual double calculate(vector<string>& arguments, int index) = 0;
 };
-
-#endif //APP_BINARYEXPRESSION_H
