@@ -1,14 +1,14 @@
-#ifndef APP_MINUS_H
-#define APP_MINUS_H
-
 #include "BinaryExpression.h"
 
+using namespace std;
 
 class Minus : public BinaryExpression {
 public:
-    Minus(Expression * a, Expression * b);
-    double calculate();
+    Minus(Expression& right_expression,
+          Expression& left_expression):
+          BinaryExpression(right_expression, left_expression) {}
+
+    double calculate(vector<string>& arguments, int index) {
+        return _right_expression.calculate(arguments, index) -
+               _left_expression.calculate(arguments, index);
 };
-
-
-#endif //APP_MINUS_H
